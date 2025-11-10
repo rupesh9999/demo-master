@@ -1,0 +1,8 @@
+# Example terraform.tfvars file
+# Copy this to terraform.tfvars and fill in your values
+
+# GitHub token for Backstage integrations
+github_token = "your-github-personal-access-token"
+
+# Domain name (optional - if you want to use a custom domain)
+# domain_name = "backstage.yourdomain.com"

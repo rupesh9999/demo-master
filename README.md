@@ -6,6 +6,36 @@ This repository is the source code for the demo [Backstage](https://backstage.io
 
 Instructions for building your own Backstage instance can be found at the [Getting Started](https://backstage.io/docs/getting-started/) portion of the docs.
 
+## AWS Deployment
+
+This Backstage demo can be deployed on AWS using Infrastructure as Code with Terraform. The deployment includes:
+
+- **ECS Fargate** for container orchestration
+- **RDS PostgreSQL** for persistent database storage
+- **Application Load Balancer** for load balancing and SSL termination
+- **VPC** with public/private subnets for security
+- **CloudWatch** for monitoring and logging
+
+### Quick Start
+
+1. **Prerequisites**: AWS CLI, Terraform, Docker
+2. **Configure**: Update `terraform/terraform.tfvars` with your GitHub token
+3. **Deploy**: Run `terraform apply` in the `terraform/` directory
+4. **Build & Push**: Build Docker image and push to ECR
+5. **Access**: Use the ALB DNS name to access your Backstage instance
+
+For detailed instructions, see the [Deployment Guide](DEPLOYMENT_GUIDE.md).
+
+### Architecture
+
+See the [Project Outline](PROJECT_OUTLINE.md) for detailed architecture information.
+
+### Documentation
+
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Step-by-step AWS deployment instructions
+- [Architecture Details](docs/ARCHITECTURE.md) - Detailed infrastructure architecture
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
 ## Reference Project
 
 The spirit of this demo and repository is to showcase Backstage as closely as possible to what you would get from running `npx @backstage/create-app@latest` to create a new Backstage instance. There have been some additional changes beyond that starting point to help showcase some of Backstage's features more clearly. It also acts as a reference project for how to best keep it up to date and to show a working example of recent architecture patterns like the [new backend system](https://backstage.io/docs/backend-system/).

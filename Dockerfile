@@ -24,11 +24,12 @@ ENV PYTHON=/usr/bin/python3
 
 # Install sqlite3 dependencies. You can skip this if you don't use sqlite3 in the image,
 # in which case you should also move better-sqlite3 to "devDependencies" in package.json.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends libsqlite3-dev python3 g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
+
+# Create the app directory with proper permissions before switching to node user
+RUN mkdir -p /app && chown -R node:node /app
 
 USER node
 WORKDIR /app
@@ -38,8 +39,7 @@ COPY --from=packages --chown=node:node /app/.yarn ./.yarn
 COPY --from=packages --chown=node:node /app/.yarnrc.yml  ./
 COPY --from=packages --chown=node:node /app/backstage.json  ./
 
-RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
-    yarn install --immutable
+RUN yarn install --immutable
 
 COPY --chown=node:node . .
 
@@ -59,9 +59,7 @@ ENV PYTHON=/usr/bin/python3
 
 # Install sqlite3 dependencies. You can skip this if you don't use sqlite3 in the image,
 # in which case you should also move better-sqlite3 to "devDependencies" in package.json.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends libsqlite3-dev g++ build-essential \
     python3 python3-pip python3-venv \
     curl default-jre graphviz fonts-dejavu fontconfig && \
@@ -79,6 +77,9 @@ RUN echo '#!/bin/sh\n\njava -jar '/opt/plantuml.jar' ${@}' >> /usr/local/bin/pla
 RUN chmod 755 /usr/local/bin/plantuml
 
 # From here on we use the least-privileged `node` user to run the backend.
+# Create the app directory with proper permissions before switching to node user
+RUN mkdir -p /app && chown -R node:node /app
+
 USER node
 
 # This should create the app dir as `node`.
@@ -92,8 +93,7 @@ COPY --from=build --chown=node:node /app/.yarnrc.yml  ./
 COPY --from=build --chown=node:node /app/backstage.json  ./
 COPY --from=build --chown=node:node /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton/ ./
 
-RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
-    yarn workspaces focus --all --production
+RUN yarn workspaces focus --all --production
 
 # Copy the built packages from the build stage
 COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./
